@@ -35,6 +35,19 @@ const monreducer = (state, action) => {
         countriesLoading: false,
         countriesError: action.payload,
       };
+      case 'SET_SORT_ORDER':
+      const sortedCountries = state.searchResults.slice().sort((a, b) => {
+        const nameA = a.name.common.toLowerCase();
+        const nameB = b.name.common.toLowerCase();
+
+        return state.sortOrder === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+      });
+
+      return {
+        ...state,
+        sortOrder: action.payload,
+        searchResults: sortedCountries,
+      };
     default:
       return state;
   }
@@ -51,7 +64,14 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 3; // Nombre d'éléments par page
-  const [state, dispatchcountry] = useReducer(monreducer, []);
+  const [state, dispatchcountry] = useReducer(monreducer,{
+    countries: [],
+    searchResults: [],
+    searchTerm: "",
+    countriesLoading: false,
+    countriesError: null,
+    sortOrder: "asc", // Ajoutez sortOrder à l'état initial
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,25 +107,24 @@ function App() {
     console.log("Countries Success State:", state.countries);
   }, [state.countries]);
 
-  useEffect(() => {
+useEffect(() => {
+  const filteredCountries = state.countries.filter((country) =>
+    country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    const filteredCountries = countries.filter((country) =>
-      country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const sortedCountries = filteredCountries.sort((a, b) => {
+    const nameA = a.name.common.toLowerCase();
+    const nameB = b.name.common.toLowerCase();
 
-    const sortedCountries = filteredCountries.sort((a, b) => {
-      const nameA = a.name.common.toLowerCase();
-      const nameB = b.name.common.toLowerCase();
+    if (sortOrder === "asc") {
+      return nameA.localeCompare(nameB);
+    } else {
+      return nameB.localeCompare(nameA);
+    }
+  });
 
-      if (sortOrder === "asc") {
-        return nameA.localeCompare(nameB);
-      } else {
-        return nameB.localeCompare(nameA);
-      }
-    });
-
-    setSearchResults(sortedCountries);
-  }, [countries, searchTerm, sortOrder]);
+  setSearchResults(sortedCountries);
+}, [state.countries, searchTerm, sortOrder]);
 
   const handleSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();
@@ -140,20 +159,32 @@ function App() {
   return (
     <div>
       <h1>List of Countries</h1>
-      <div>
-        <label htmlFor="sortOrder">Sort Order:</label>
-        <select id="sortOrder" value={sortOrder} onChange={handleSort}>
+      <div className="select-wrapper">
+        <select
+          className="sort-order-select"
+          id="sortOrder"
+          value={sortOrder}
+          onChange={handleSort}
+        >
           <option value="asc">Ascending</option>
           <option value="desc">Descending</option>
         </select>
       </div>
+      <div className="center-container">
+      <div className="search-box">
+      <button className="btn-search" onClick={handleSearch}>
+       <i class="fas fa-search"></i>
+        </button>
       <input
         type="text"
+        className="input-search"
         placeholder="Search for a country..."
         value={searchTerm}
         onChange={handleSearch}
       />
-
+      
+      </div>
+      </div>
       <div className="card-container">
         {paginatedResults.map((country) => (
           <div key={country.name.common} className="card">
@@ -161,19 +192,23 @@ function App() {
               title={country.name.common}
               content={
                 <>
+                    {country.flags?.png && (
+                  <img
+                    src={country.flags.png}
+                    alt={`${country.name.common} Flag`}
+                    style={{ width: '50px', height: 'auto' }}
+                  />
+                )}
                   <p>Capital: {country.capital}</p>
                   <p>Population: {country.population}</p>
                   <p>Region: {country.region}</p>
-                  {/* Add other specific country information here */}
+
                 </>
               }
               onClick={() => handleCountryClick(country)}
               onDetailsClick={() => handleDetailsClick(country)}
-              customStyle={{ backgroundColor: "green", width: "100%" }} // Exemple de style personnalisé
             >
-              <button onClick={() => handleDetailsClick(country)}>
-                Details
-              </button>
+             
             </GenericCard>
           </div>
         ))}

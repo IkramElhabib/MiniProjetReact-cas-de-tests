@@ -1,40 +1,17 @@
 import React from 'react';
+import "./app.css";
 
-const GenericCard = ({
-  title,
-  content,
-  onClick,
-  onDetailsClick,
-  customStyle,
-  children,
-}) => {
-  const cardStyle = {
-    backgroundColor: '#ABB2B9',
-    color: 'white',
-    padding: '8px 16px',
-    borderRadius: '8px',
-    marginTop: '8px',
-    transition: 'background-color 0.3s',
-    ...customStyle,
-  };
-
+const GenericCard = ({ title, content, onClick, onDetailsClick, children,flagUrl, }) => {
   return (
-    <div className="card" style={cardStyle} onClick={onClick}>
+    <div className="container">
+    <div className="card" onClick={onClick}>
+
+    {flagUrl && <img src={flagUrl} alt={`${title} Flag`} />} {/* Afficher le drapeau */}
       <h3>{title}</h3>
       <div>{content}</div>
       {children && <div>{children}</div>}
-      <button
-        style={{
-          backgroundColor: 'blue',
-          color: 'white',
-          padding: '8px 16px',
-          borderRadius: '4px',
-          marginTop: '8px',
-        }}
-        onClick={onDetailsClick}
-      >
-        Details
-      </button>
+      <button onClick={onDetailsClick}>Details</button>
+    </div>
     </div>
   );
 };

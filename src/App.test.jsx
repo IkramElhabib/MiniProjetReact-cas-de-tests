@@ -4,6 +4,8 @@ import { render, screen } from '@testing-library/react';
 import GenericCard from './GenericCard';
 import CountryCard from './CountryCard';
 import App from './App';
+import { fireEvent, waitFor } from '@testing-library/react';
+
 
 
 const examplePayload = [
@@ -100,12 +102,14 @@ describe('App Component', () => {
   
     // Render the App component
     render(<App />);
-    await new Promise(resolve => setTimeout(resolve, 5000)); // Augmentez la durée de temporisation
+   /* await new Promise(resolve => setTimeout(resolve, 3000)); // Augmentez la durée de temporisation
 
     // Wait for the error to be displayed
     
-      expect(screen.getByText(exampleErrorMessage)).to.exist;
-    
+      expect(screen.queryByText(exampleErrorMessage)).to.exist;*/
+      await waitFor(() => {
+        expect(screen.queryByText(exampleErrorMessage)).to.exist;
+      });
   
     // Nettoyez le mock axios global
     delete globalThis.axios;
@@ -114,13 +118,14 @@ describe('App Component', () => {
 
 /* test de bout en bout ************************ */
 
-const exampleSearchTerm = 'Christmas Island';
+
+const exampleSearchTerm = 'Denmark';
 
 describe('End-to-End Test', () => {
   it('simulates user search interaction', async () => {
     // Mock axios to simulate a successful API response
     globalThis.axios = {
-      get: () => Promise.resolve({ data: [{ name: { common: exampleSearchTerm }, capital: 'Flying Fish Cove' }] }),
+      get: () => Promise.resolve({ data: [{ name: { common: exampleSearchTerm }, capital: 'Copenhagen' }] }),
     };
   
     // Render the App component
@@ -128,21 +133,18 @@ describe('End-to-End Test', () => {
   
     // Simulate user entering a search term
     const searchInput = screen.getByPlaceholderText('Search for a country...');
-    searchInput.value = exampleSearchTerm;
-    // Simulate user finishing typing (adjust as needed)
-    fireEvent.input(searchInput);
+    fireEvent.change(searchInput, { target: { value: exampleSearchTerm } });
   
     // Wait for the data to be fetched
-    await new Promise(resolve => setTimeout(resolve, 3000));
-      expect(screen.getByText(exampleSearchTerm)).to.exist;
-      expect(screen.getByText('Capital: Flying Fish Cove')).to.exist;
-    
+    await waitFor(() => {
+      expect(screen.getByText(exampleSearchTerm)).toBeInTheDocument();
+      expect(screen.getByText('Capital: Copenhagen')).toBeInTheDocument();
+    });
   
-    // Nettoyez le mock axios global
+    // Clean up the global axios mock
     delete globalThis.axios;
-  });  
+  });
 });
-
 
 /* --------------App.jsx----------- */
 /*
