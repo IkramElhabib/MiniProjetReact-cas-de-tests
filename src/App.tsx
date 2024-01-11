@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useReducer } from "react";
 import GenericCard from "./GenericCard";
 import CountryModal from "./CountryModal";
-import "./app.css";
+import "./App.css";
 import axios from 'axios';
 
 interface Country {

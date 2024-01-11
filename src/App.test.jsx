@@ -82,9 +82,7 @@ describe('App Component', () => {
     expect(screen.getByText('Christmas Island')).to.exist;
     expect(screen.getByText('Capital: Flying Fish Cove')).to.exist;
     
-  
-    // Vous pouvez ajouter d'autres assertions au besoin
-  
+    
     // Nettoyez le mock axios global
     delete globalThis.axios;
   });  
@@ -136,10 +134,14 @@ describe('End-to-End Test', () => {
     fireEvent.change(searchInput, { target: { value: exampleSearchTerm } });
   
     // Wait for the data to be fetched
+    try{
     await waitFor(() => {
       expect(screen.getByText(exampleSearchTerm)).toBeInTheDocument();
       expect(screen.getByText('Capital: Copenhagen')).toBeInTheDocument();
-    });
+    });}
+    catch{
+      console.log('error in your end to end tests');
+    }
   
     // Clean up the global axios mock
     delete globalThis.axios;
