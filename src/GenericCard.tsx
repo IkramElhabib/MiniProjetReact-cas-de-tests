@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import "./app.css";
+import "./App.css";
 
 interface GenericCardProps {
   title: string;
